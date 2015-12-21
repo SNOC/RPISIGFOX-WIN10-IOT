@@ -59,14 +59,14 @@
         </StackPanel>
 
         <StackPanel Grid.Row="4" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="28,0,16,0" Width="300" Height="80">
-            <TextBox Name="sendText" Width="300" Height="80"/>
+            <TextBox Name="sendText" Width="300" Height="80" TextChanged="sendText_TextChanged"/>
         </StackPanel>
 
         <StackPanel Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="32,24,0,24" Height="32" Width="56">
             <Button Name="sendTextButton" Content="Send" Click="sendTextButton_Click"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="5" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="142,10,130,0" Height="20" Width="72"/>
+        </StackPanel>
 
         <StackPanel Grid.Row="6" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="28,0,16,0" Width="300" Height="45" RenderTransformOrigin="0.5,0.5">
             <TextBlock Text="Status: " HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="21.333"/>
@@ -76,9 +76,9 @@
             <TextBlock Name="statusFailLabel" Text="Operation failed" HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="Collapsed" FontSize="21.333"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="28,20,-18,24" Width="460" Height="136">
+        <StackPanel Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Width="460" Margin="10,0,0,-120" Grid.RowSpan="4">
             <TextBox
-				x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Height="136" VerticalAlignment="Top" 
+				x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Height="300" VerticalAlignment="Top" 
 				ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#FFD1C7C7" HorizontalAlignment="Right" Width="460"/>
         </StackPanel>
 

@@ -129,7 +129,7 @@ namespace SerialSample
                 await sendString("AT");
 
                 // Enable 'WRITE' button to allow sending data
-                sendTextButton.IsEnabled = true;
+                sendText_TextChanged(null, null);
             }
             catch (Exception ex)
             {
@@ -235,8 +235,13 @@ namespace SerialSample
                 if (serialPort != null)
                 {
                     dataReaderObject = new DataReader(serialPort.InputStream);
+                    //ReadCancellationTokenSource.CancelAfter(7500);
                     await ReadAsync(ReadCancellationTokenSource.Token);
                 }
+            }
+            catch(OperationCanceledException ex )
+            {
+                status.Text += "Timeout while reading";
             }
             catch (Exception ex)
             {
@@ -247,7 +252,7 @@ namespace SerialSample
                 }
                 else
                 {
-                    status.Text = ex.Message;
+                    status.Text += ex.Message;
                 }
             }
             finally
@@ -280,40 +285,42 @@ namespace SerialSample
             while( loop && (--counter != 0) )
             {
                 // Set InputStreamOptions to complete the asynchronous read operation when one or more bytes is available
-                dataReaderObject.InputStreamOptions = InputStreamOptions.Partial;
+                //dataReaderObject.InputStreamOptions = InputStreamOptions.Partial;
+                dataReaderObject.InputStreamOptions = InputStreamOptions.ReadAhead;
 
                 // Create a task object to wait for data on the serialPort.InputStream
                 loadAsyncTask = dataReaderObject.LoadAsync(ReadBufferLength).AsTask(cancellationToken);
 
                 // Launch the task and wait
                 UInt32 bytesRead = await loadAsyncTask;
-                if (bytesRead > 0)
+                string readString = "";
+                while( dataReaderObject.UnconsumedBufferLength > 0 )
                 {
-                    string read = dataReaderObject.ReadString(bytesRead);
-                    status.Text += "\nRead \"" + read.Replace('\r', ' ').Replace('\n', ' ').Trim() + "\" (" + bytesRead + ")";
-                    /*foreach (char c in read)
-                        status.Text += String.Format(" 0x{0:X2}", (int)c);*/
-                    loop = !read.EndsWith("OK\r\n");
-                    if( !loop )
-                    {
-                        status.Text += " -> OK detected";
-                    }
-                }            
-            }
-            if( loop )
-            {
-                // OK was not found
-                statusNotConnectedLabel.Visibility = Visibility.Collapsed;
-                statusConnectedLabel.Visibility = Visibility.Collapsed;
-                statusOKLabel.Visibility = Visibility.Collapsed;
-                statusFailLabel.Visibility = Visibility.Visible;
-            } else
-            {
-                // OK
-                statusNotConnectedLabel.Visibility = Visibility.Collapsed;
-                statusConnectedLabel.Visibility = Visibility.Collapsed;
-                statusOKLabel.Visibility = Visibility.Visible;
-                statusFailLabel.Visibility = Visibility.Collapsed;
+                    char c = (char) dataReaderObject.ReadByte();
+                    //status.Text += String.Format(" 0x{0:X2}", (int)c);
+                    readString += c;
+                }
+                status.Text += "\nRead \"" + readString.Replace('\r', ' ').Replace('\n', ' ').Trim() + "\" (" + bytesRead + ")";
+                if (readString.EndsWith("OK\r\n"))
+                {
+                    status.Text += " -> OK detected";
+                    loop = false;
+                    statusNotConnectedLabel.Visibility = Visibility.Collapsed;
+                    statusConnectedLabel.Visibility = Visibility.Collapsed;
+                    statusOKLabel.Visibility = Visibility.Visible;
+                    statusFailLabel.Visibility = Visibility.Collapsed;
+                }
+                else if (readString.Contains("\r\nER"))
+                {
+                    status.Text += " -> ERROR detected";
+                    loop = false;
+                    // OK was not found
+                    statusNotConnectedLabel.Visibility = Visibility.Collapsed;
+                    statusConnectedLabel.Visibility = Visibility.Collapsed;
+                    statusOKLabel.Visibility = Visibility.Collapsed;
+                    statusFailLabel.Visibility = Visibility.Visible;
+                }
+
             }
         }
 
@@ -375,6 +382,57 @@ namespace SerialSample
             {
                 status.Text = ex.Message;
             }          
-        }        
+        }
+
+        private void sendText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if( System.Text.RegularExpressions.Regex.IsMatch(sendText.Text, "^([0-9A-F][0-9A-F]){1,12}$", System.Text.RegularExpressions.RegexOptions.IgnoreCase) )
+            {
+                sendTextButton.IsEnabled = true;
+                sendLabel.Text = "";
+            } else
+            {
+                sendTextButton.IsEnabled = false;
+                if( !System.Text.RegularExpressions.Regex.IsMatch(sendText.Text, "^([0-9A-F])+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase) )
+                {
+                    sendLabel.Text = "(only 0..9 and A..F characters allowed)";
+                } else if( sendText.Text.Length % 2 == 1 )
+                {
+                    sendLabel.Text = "(even number of digits required for bytes)";
+                } else
+                {
+                    sendLabel.Text = "(12 bytes maximum per message)";
+                }
+            }
+            
+        }
+
+        public static T FindDescendant<T>(DependencyObject obj) where T : DependencyObject
+        {
+            if (obj == null) return default(T);
+            int numberChildren = Windows.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(obj);
+            if (numberChildren == 0) return default(T);
+
+            for (int i = 0; i < numberChildren; i++)
+            {
+                DependencyObject child = Windows.UI.Xaml.Media.VisualTreeHelper.GetChild(obj, i);
+                if (child is T)
+                {
+                    return (T)(object)child;
+                }
+            }
+
+            for (int i = 0; i < numberChildren; i++)
+            {
+                DependencyObject child = Windows.UI.Xaml.Media.VisualTreeHelper.GetChild(obj, i);
+                var potentialMatch = FindDescendant<T>(child);
+                if (potentialMatch != default(T))
+                {
+                    return potentialMatch;
+                }
+            }
+
+            return default(T);
+        }
     }
 }
