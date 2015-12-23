@@ -13,7 +13,7 @@
         <CollectionViewSource x:Name="DeviceListSource"/>
     </Page.Resources>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Right" Width="1024">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Left" Width="1024">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
@@ -66,8 +66,6 @@
             <Button Name="sendTextButton" Content="Send" Click="sendTextButton_Click"/>
         </StackPanel>
 
-        </StackPanel>
-
         <StackPanel Grid.Row="6" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="28,0,16,0" Width="300" Height="45" RenderTransformOrigin="0.5,0.5">
             <TextBlock Text="Status: " HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="21.333"/>
             <TextBlock Name="statusNotConnectedLabel" Text="Not connected" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="21.333"/>
@@ -81,6 +79,7 @@
 				x:Name="status" TextWrapping="Wrap" IsReadOnly="True" Height="300" VerticalAlignment="Top" 
 				ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderBrush="#FFD1C7C7" HorizontalAlignment="Right" Width="460"/>
         </StackPanel>
+        <TextBlock x:Name="sendLabel" Grid.Column="1" HorizontalAlignment="Left" Margin="93,30,-209,0" Grid.Row="4" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="300"/>
 
     </Grid>
 </Page>
